@@ -18,9 +18,4 @@ coverage/
 .DS_Store
 Thumbs.db
 
-# Docker
-.dockerignore
 
-# Docs / misc
-prompts.md
-README.md

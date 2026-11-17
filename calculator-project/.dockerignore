@@ -1,0 +1,18 @@
+# Ignore test files (not needed in production)
+tests/
+
+# Ignore git and IDE files
+.git
+.gitignore
+*.pyc
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Ignore documentation
+*.md
+prompts.md
+
+# Ignore any other unnecessary files
+.env
+*.log
