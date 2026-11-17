@@ -13,7 +13,7 @@ The frontend sends all calculations to the backend via `fetch()` — no math is 
 ### Key Features
 - **REST API** — dedicated endpoints for each operation plus a general expression parser
 - **Safe expression parsing** — uses Python's `ast` module with strict validation (no `eval()`/`exec()`)
-- **Calculation history** — stores the last 50 results in memory with auto-cleanup
+- **Calculation history** — stores the last 20 results in memory with auto-cleanup
 - **Full test coverage** — 54 tests covering all endpoints, edge cases, and error conditions
 - **Docker-ready** — production image under 127MB
 - **Responsive frontend** — mobile-friendly calculator UI served from the same container
@@ -58,7 +58,7 @@ This folder organization allows us to maintain the initial vague-prompt output s
 | POST | `/divide` | Divide a by b: `{"a": 10, "b": 2}` → `{"result": 5}` |
 | POST | `/power` | Raise a to the power of b: `{"a": 2, "b": 8}` → `{"result": 256}` |
 | POST | `/calculate` | Evaluate an expression: `{"expression": "2 + 3 * 4"}` → `{"result": 14}` |
-| GET | `/history` | Get calculation history (last 50 entries) |
+| GET | `/history` | Get calculation history (last 20 entries) |
 | GET | `/docs` | Auto-generated Swagger UI (FastAPI) |
 | GET | `/redoc` | Alternative ReDoc documentation |
 
@@ -143,7 +143,7 @@ python -m pytest tests/test_main.py -v
 | TestDivide | 6 | Division including divide-by-zero error |
 | TestPower | 4 | Exponentiation with various values |
 | TestCalculate | 19 | Expression parsing: basic math, parentheses, edge cases, invalid input |
-| TestHistory | 10 | History storage, retrieval, max limit (50), auto-cleanup |
+| TestHistory | 10 | History storage, retrieval, max limit (20), auto-cleanup |
 
 **Total: 54 tests**
 
@@ -242,7 +242,7 @@ A vague prompt gives the AI coding agent more freedom to make assumptions, while
 
 ## Code Review and Correction Details
 
-### Issue 1: XSS Vulnerability (SEC050) — **Fixed**
+### Issue 1: XSS Vulnerability — **Fixed**
 
 **Location:** `static/index.html`, history rendering function
 
