@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 700px;
+      width: 100%;
+    }
+    .calculator {
+      flex: 1;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    h1 { text-align: center; margin-bottom: 16px; color: #333; font-size: 1.4rem; }
+    .display {
+      background: #f7f7f7;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      text-align: right;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .expression {
+      font-size: 1rem;
+      color: #888;
+      min-height: 1.2em;
+      word-break: break-all;
+    }
+    .result {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #222;
+      word-break: break-all;
+    }
+    .error { color: #e53e3e; font-size: 0.95rem; }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    button {
+      padding: 18px 0;
+      font-size: 1.15rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #e4e6eb;
+      color: #333;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    button:hover { background: #d0d2d8; }
+    button.op { background: #e8f0fe; color: #1a73e8; }
+    button.op:hover { background: #d2e3fc; }
+    button.eq { background: #1a73e8; color: #fff; }
+    button.eq:hover { background: #1557b0; }
+    button.clear { background: #fce8e6; color: #d93025; }
+    button.clear:hover { background: #f8d7da; }
+    .history {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 220px;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+    .history h2 {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .history-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.85rem;
+    }
+    .history-entry .expr { color: #888; }
+    .history-entry .res { color: #333; font-weight: 600; }
+    .no-history { color: #aaa; font-size: 0.85rem; }
+
+    @media (max-width: 600px) {
+      .container { flex-direction: column; }
+      .history { width: 100%; max-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <h1>Calculator</h1>
+      <div class="display">
+        <div class="expression" id="expression"></div>
+        <div class="result" id="result">0</div>
+        <div class="error" id="error"></div>
+      </div>
+      <div class="buttons">
+        <button class="clear" onclick="clearAll()">C</button>
+        <button class="clear" onclick="backspace()">&larr;</button>
+        <button class="op" onclick="appendChar('(')">(</button>
+        <button class="op" onclick="appendChar(')')">)</button>
+
+        <button onclick="appendChar('7')">7</button>
+        <button onclick="appendChar('8')">8</button>
+        <button onclick="appendChar('9')">9</button>
+        <button class="op" onclick="appendChar('/')">/</button>
+
+        <button onclick="appendChar('4')">4</button>
+        <button onclick="appendChar('5')">5</button>
+        <button onclick="appendChar('6')">6</button>
+        <button class="op" onclick="appendChar('*')">*</button>
+
+        <button onclick="appendChar('1')">1</button>
+        <button onclick="appendChar('2')">2</button>
+        <button onclick="appendChar('3')">3</button>
+        <button class="op" onclick="appendChar('-')">-</button>
+
+        <button onclick="appendChar('0')">0</button>
+        <button onclick="appendChar('.')">.</button>
+        <button class="eq" onclick="calculate()">=</button>
+        <button class="op" onclick="appendChar('+')">+</button>
+      </div>
+    </div>
+
+    <div class="history">
+      <h2>History</h2>
+      <div id="history-list"><span class="no-history">No calculations yet</span></div>
+    </div>
+  </div>
+
+  <script>
+    let currentExpression = '';
+
+    function appendChar(ch) {
+      clearError();
+      currentExpression += ch;
+      updateDisplay();
+    }
+
+    function clearAll() {
+      currentExpression = '';
+      clearError();
+      document.getElementById('result').textContent = '0';
+      updateDisplay();
+    }
+
+    function backspace() {
+      currentExpression = currentExpression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      document.getElementById('expression').textContent = currentExpression;
+    }
+
+    function showError(msg) {
+      document.getElementById('error').textContent = msg;
+    }
+
+    function clearError() {
+      document.getElementById('error').textContent = '';
+    }
+
+    async function calculate() {
+      if (!currentExpression.trim()) return;
+      clearError();
+      try {
+        const res = await fetch('/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expression: currentExpression })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showError(data.detail || 'Calculation failed');
+          return;
+        }
+        document.getElementById('result').textContent = data.result;
+        // refresh history
+        loadHistory();
+      } catch (e) {
+        showError('Could not reach the server');
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        const res = await fetch('/history');
+        const data = await res.json();
+        const items = data.history || [];
+        const box = document.getElementById('history-list');
+        if (!items.length) {
+          box.innerHTML = '<span class="no-history">No calculations yet</span>';
+          return;
+        }
+        box.innerHTML = '';
+        items.slice(-10).reverse().forEach(function (h) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'history-entry';
+          const exprDiv = document.createElement('div');
+          exprDiv.className = 'expr';
+          exprDiv.textContent = h.expression;
+          const resDiv = document.createElement('div');
+          resDiv.className = 'res';
+          resDiv.textContent = '= ' + h.result;
+          wrapper.appendChild(exprDiv);
+          wrapper.appendChild(resDiv);
+          box.appendChild(wrapper);
+        });
+      } catch (e) {
+        // history not critical, ignore
+      }
+    }
+
+    // load history on page load
+    loadHistory();
+  </script>
+</body>
+</html>
