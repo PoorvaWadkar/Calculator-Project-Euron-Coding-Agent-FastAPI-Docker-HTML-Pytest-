@@ -266,19 +266,12 @@ exprDiv.textContent = h.expression;
 
 ## Euron Code Usage Tracking
 
-
 ### Today's Usage
 
-The task used approximately 53% of the daily allowance (5.34 million out of 10 million tokens).
-Around 47% of the daily allowance remained after completing the task.
-
-- Tokens Used: 5,341,417 / 10,000,000
-- Usage: 53%
-- Remaining Tokens: 4,658,583
+- Tokens Used: 5,341,417
 - Requests: 325
 - Sessions: 2
 - Tasks: 24
-- Cached Prompt Tokens: 64%
 
 ---
 
